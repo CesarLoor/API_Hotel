@@ -1,0 +1,22 @@
+{
+  "name": "api-hotel-reservas",
+  "version": "1.0.0",
+  "description": "API REST para Gestión de Reservas de Hotel - Laboratorio 2",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": ["hotel", "reservas", "api", "express", "mysql"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
