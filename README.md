@@ -16,21 +16,16 @@ npm install
 
 ## Configuración de la Base de Datos
 
-### 1. Levantar MySQL con Docker
+### 1. Levantar la base de datos con Docker Compose
+
+Desde la raíz del proyecto, ejecuta:
 
 ```bash
-docker run -d --name mysql-hotel -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes mysql:latest
+docker-compose up -d
 ```
 
-### 2. Crear la base de datos y tablas
+Esto levantará el contenedor de MySQL y cargará automáticamente el esquema de la base de datos y los datos de prueba definidos en `hotel_reservas.sql`.
 
-Ejecutar el script SQL proporcionado:
-
-```bash
-docker exec -i mysql-hotel mysql -u root < hotel_reservas.sql
-```
-
-O importarlo manualmente desde un cliente MySQL.
 
 ### 3. Configurar variables de entorno
 

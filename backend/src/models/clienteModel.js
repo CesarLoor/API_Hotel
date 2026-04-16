@@ -34,6 +34,12 @@ const Cliente = {
             [nombre, email, telefono, id]
         );
         return result.affectedRows > 0;
+    },
+
+    // Eliminar un cliente
+    delete: async (id) => {
+        const [result] = await db.query('DELETE FROM clientes WHERE id = ?', [id]);
+        return result.affectedRows > 0;
     }
 };
 

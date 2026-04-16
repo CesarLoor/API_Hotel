@@ -9,5 +9,6 @@ router.get('/', reservaController.getAll);
 router.get('/:id', reservaController.getById);
 router.post('/', reservaController.create);
 router.put('/:id', reservaController.update);
+router.delete('/:id', reservaController.delete);
 
 module.exports = router;

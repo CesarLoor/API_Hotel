@@ -45,6 +45,12 @@ const Reserva = {
             [fecha_entrada, fecha_salida, num_huespedes, hotel_id, cliente_id, id]
         );
         return result.affectedRows > 0;
+    },
+
+    // Eliminar una reserva
+    delete: async (id) => {
+        const [result] = await db.query('DELETE FROM reservas WHERE id = ?', [id]);
+        return result.affectedRows > 0;
     }
 };
 

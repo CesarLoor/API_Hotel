@@ -34,6 +34,12 @@ const Hotel = {
             [nombre, direccion, estrellas, telefono, id]
         );
         return result.affectedRows > 0;
+    },
+
+    // Eliminar un hotel
+    delete: async (id) => {
+        const [result] = await db.query('DELETE FROM hoteles WHERE id = ?', [id]);
+        return result.affectedRows > 0;
     }
 };
 

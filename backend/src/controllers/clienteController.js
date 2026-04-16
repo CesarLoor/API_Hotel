@@ -77,6 +77,27 @@ const clienteController = {
             console.error('Error al actualizar cliente:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
+    },
+
+    // DELETE /api/clientes/:id
+    delete: async (req, res) => {
+        try {
+            // Verificar que el cliente exista
+            const clienteExiste = await Cliente.getById(req.params.id);
+            if (!clienteExiste) {
+                return res.status(404).json({ error: 'Cliente no encontrado' });
+            }
+
+            await Cliente.delete(req.params.id);
+            res.status(200).json({ mensaje: 'Cliente eliminado exitosamente' });
+        } catch (error) {
+            console.error('Error al eliminar cliente:', error);
+            // Manejar error de integridad referencial si tiene reservas
+            if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+                return res.status(400).json({ error: 'No se puede eliminar el cliente porque tiene reservas asociadas' });
+            }
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
     }
 };
 

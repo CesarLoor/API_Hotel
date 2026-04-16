@@ -81,6 +81,23 @@ const reservaController = {
             console.error('Error al actualizar reserva:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
+    },
+
+    // DELETE /api/reservas/:id
+    delete: async (req, res) => {
+        try {
+            // Verificar que la reserva exista
+            const reservaExiste = await Reserva.getById(req.params.id);
+            if (!reservaExiste) {
+                return res.status(404).json({ error: 'Reserva no encontrada' });
+            }
+
+            await Reserva.delete(req.params.id);
+            res.status(200).json({ mensaje: 'Reserva eliminada exitosamente' });
+        } catch (error) {
+            console.error('Error al eliminar reserva:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
     }
 };
 

@@ -53,7 +53,7 @@ app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log(`📋 Endpoints disponibles:`);
     console.log(`   GET/POST       http://localhost:${PORT}/api/hoteles`);
-    console.log(`   GET/PUT        http://localhost:${PORT}/api/hoteles/:id`);
+    console.log(`   GET/PUT/DELETE http://localhost:${PORT}/api/hoteles/:id`);
     console.log(`   GET/POST       http://localhost:${PORT}/api/clientes`);
     console.log(`   GET/PUT        http://localhost:${PORT}/api/clientes/:id`);
     console.log(`   GET/POST       http://localhost:${PORT}/api/reservas`);
