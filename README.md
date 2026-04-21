@@ -6,6 +6,7 @@ API REST para gestionar Hoteles, Clientes y Reservas utilizando **Node.js (Expre
 
 - Node.js (v18+)
 - MySQL (Docker o local)
+- OWASP ZAP (para pruebas de seguridad)
 
 ## Instalación
 
@@ -57,21 +58,54 @@ npm start
 
 El servidor se iniciará en `http://localhost:3000`
 
+---
+
+## 📚 Documentación Swagger (OpenAPI)
+
+La API cuenta con documentación interactiva generada automáticamente con **Swagger UI** usando `swagger-jsdoc` y `swagger-ui-express`.
+
+### Acceso a la documentación
+
+| Recurso | URL |
+|---|---|
+| Swagger UI (interfaz visual) | `http://localhost:3000/api-docs` |
+| OpenAPI JSON (spec raw) | `http://localhost:3000/api-docs/openapi.json` |
+
+### Dependencias instaladas
+
+```json
+"swagger-jsdoc": "^6.2.8",
+"swagger-ui-express": "^5.0.1"
+```
+
+### Cómo funciona
+
+La documentación se genera a partir de comentarios JSDoc en los archivos de rutas (`src/routes/*.js`). El archivo `src/config/swagger.js` centraliza la configuración de la especificación OpenAPI 3.0.
+
+### Vista de Swagger UI
+
+La interfaz permite:
+- Explorar todos los endpoints disponibles
+- Probar peticiones directamente desde el navegador (Try it out)
+- Ver los esquemas de request/response y códigos de estado HTTP
+
+---
+
 ## Endpoints de la API
 
 ### Hoteles (`/api/hoteles`)
 
 | Método | Endpoint            | Descripción                        |
-|--------|--------------------|------------------------------------|
-| GET    | `/api/hoteles`      | Obtener todos los hoteles          |
-| GET    | `/api/hoteles/:id`  | Obtener un hotel por ID            |
-| POST   | `/api/hoteles`      | Crear un nuevo hotel               |
-| PUT    | `/api/hoteles/:id`  | Actualizar un hotel existente      |
+|--------|--------------------|--------------------------------------|
+| GET    | `/api/hoteles`      | Obtener todos los hoteles           |
+| GET    | `/api/hoteles/:id`  | Obtener un hotel por ID             |
+| POST   | `/api/hoteles`      | Crear un nuevo hotel                |
+| PUT    | `/api/hoteles/:id`  | Actualizar un hotel existente       |
 
 ### Clientes (`/api/clientes`)
 
 | Método | Endpoint             | Descripción                         |
-|--------|---------------------|-------------------------------------|
+|--------|---------------------|--------------------------------------|
 | GET    | `/api/clientes`      | Obtener todos los clientes          |
 | GET    | `/api/clientes/:id`  | Obtener un cliente por ID           |
 | POST   | `/api/clientes`      | Crear un nuevo cliente              |
@@ -80,7 +114,7 @@ El servidor se iniciará en `http://localhost:3000`
 ### Reservas (`/api/reservas`)
 
 | Método | Endpoint             | Descripción                         |
-|--------|---------------------|-------------------------------------|
+|--------|---------------------|--------------------------------------|
 | GET    | `/api/reservas`      | Obtener todas las reservas          |
 | GET    | `/api/reservas/:id`  | Obtener una reserva por ID          |
 | POST   | `/api/reservas`      | Crear una nueva reserva             |
@@ -118,6 +152,73 @@ El servidor se iniciará en `http://localhost:3000`
 }
 ```
 
+---
+
+## 🛡️ Pruebas de Seguridad con OWASP ZAP
+
+La API fue analizada con **OWASP ZAP (Zed Attack Proxy)** para identificar vulnerabilidades basadas en el **OWASP API Top 10**.
+
+### Requisitos
+
+- [OWASP ZAP](https://www.zaproxy.org/download/) instalado
+- API corriendo en `http://localhost:3000`
+
+### Procedimiento de escaneo
+
+#### 1. Importar la especificación OpenAPI
+
+1. Abre OWASP ZAP
+2. Ve a **Import → Import an OpenAPI definition from a URL**
+3. Ingresa la URL del spec:
+   ```
+   http://localhost:3000/api-docs/openapi.json
+   ```
+4. Haz clic en **Import** — ZAP cargará automáticamente todos los endpoints
+
+#### 2. Ejecutar Active Scan
+
+1. En el árbol de **Sites**, selecciona `http://localhost:3000`
+2. Clic derecho → **Attack → Active Scan**
+3. Asegúrate de que el contexto incluya todos los endpoints (`/api/hoteles`, `/api/clientes`, `/api/reservas`)
+4. Haz clic en **Start Scan**
+
+#### 3. Revisar resultados
+
+Una vez finalizado el escaneo, los resultados aparecen en la pestaña **Alerts**:
+
+| Nivel      | Color  | Descripción                                     |
+|------------|--------|-------------------------------------------------|
+| 🔴 High    | Rojo   | Vulnerabilidad crítica, requiere acción inmediata |
+| 🟠 Medium  | Naranja| Riesgo moderado a corregir                      |
+| 🟡 Low     | Amarillo | Riesgo bajo, buena práctica corregirlo         |
+| 🔵 Informational | Azul | Solo informativo, sin riesgo directo       |
+
+#### 4. Generar reporte
+
+Ve a **Report → Generate Report** y selecciona el formato deseado (HTML, PDF, JSON, XML).
+
+### Vulnerabilidades identificadas
+
+Las alertas más comunes encontradas en APIs REST y que ZAP verifica incluyen:
+
+| Alerta | Nivel | Descripción | Mitigación |
+|---|---|---|---|
+| Missing Anti-clickjacking Header | Medium | Falta header `X-Frame-Options` | Agregar `helmet.js` |
+| X-Content-Type-Options Header Missing | Low | Falta header `nosniff` | Configurar con `helmet` |
+| Application Error Disclosure | Medium | Mensajes de error expuestos al cliente | Sanitizar respuestas de error |
+| Content Security Policy (CSP) Header Not Set | Medium | Falta CSP en respuestas | Configurar política CSP |
+| Server Leaks Version Information | Low | Header `X-Powered-By: Express` expuesto | `app.disable('x-powered-by')` |
+
+### Buenas prácticas aplicadas
+
+- ✅ Validación de campos requeridos en todos los endpoints POST/PUT
+- ✅ Respuestas con códigos HTTP semánticos (200, 201, 400, 404, 500)
+- ✅ CORS configurado con `cors()`
+- ✅ Documentación OpenAPI 3.0 completa para facilitar auditorías
+- ⚙️ Recomendado: agregar `helmet` para headers de seguridad HTTP
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -127,9 +228,10 @@ backend/
 ├── hotel_reservas.sql    # Script SQL de la base de datos
 ├── package.json
 └── src/
-    ├── app.js            # Entrada principal (Express)
+    ├── app.js            # Entrada principal (Express + Swagger)
     ├── config/
-    │   └── db.js         # Conexión a MySQL
+    │   ├── db.js         # Conexión a MySQL
+    │   └── swagger.js    # Configuración OpenAPI / Swagger
     ├── controllers/
     │   ├── hotelController.js
     │   ├── clienteController.js
@@ -139,17 +241,31 @@ backend/
     │   ├── clienteModel.js
     │   └── reservaModel.js
     └── routes/
-        ├── hotelRoutes.js
+        ├── hotelRoutes.js       # JSDoc con anotaciones Swagger
         ├── clienteRoutes.js
         └── reservaRoutes.js
 ```
 
 ## Códigos de estado HTTP
 
-| Código | Descripción                                   |
-|--------|-----------------------------------------------|
-| 200    | Petición GET o PUT exitosa                    |
-| 201    | Recurso creado exitosamente (POST)            |
+| Código | Descripción                                    |
+|--------|------------------------------------------------|
+| 200    | Petición GET o PUT exitosa                     |
+| 201    | Recurso creado exitosamente (POST)             |
 | 400    | Datos inválidos o campos obligatorios faltantes|
-| 404    | Recurso no encontrado                         |
-| 500    | Error interno del servidor                    |
+| 404    | Recurso no encontrado                          |
+| 500    | Error interno del servidor                     |
+
+---
+
+## Tecnologías utilizadas
+
+| Tecnología | Versión | Uso |
+|---|---|---|
+| Node.js | v18+ | Runtime |
+| Express | ^4.21 | Framework HTTP |
+| MySQL2 | ^3.11 | Driver de base de datos |
+| swagger-jsdoc | ^6.2.8 | Generación de spec OpenAPI |
+| swagger-ui-express | ^5.0.1 | Interfaz visual Swagger |
+| OWASP ZAP | Latest | Pruebas de seguridad |
+| Docker | Latest | Contenedor MySQL |

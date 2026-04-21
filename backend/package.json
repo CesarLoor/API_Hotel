@@ -7,14 +7,22 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
-  "keywords": ["hotel", "reservas", "api", "express", "mysql"],
+  "keywords": [
+    "hotel",
+    "reservas",
+    "api",
+    "express",
+    "mysql"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
-    "mysql2": "^3.11.0"
+    "mysql2": "^3.11.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
